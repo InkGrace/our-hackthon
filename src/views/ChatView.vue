@@ -42,6 +42,17 @@ const formatTime = (timestamp: number) =>
     minute: '2-digit',
   }).format(new Date(timestamp))
 
+import MarkdownIt from 'markdown-it'
+const md = new MarkdownIt({
+  html: false,
+  linkify: true,
+  typographer: true,
+})
+
+const renderMarkdown = (text: string) => {
+  return md.render(text)
+}
+
 const scrollToBottom = async () => {
   await nextTick()
   if (messagePane.value) {
@@ -200,9 +211,7 @@ onMounted(() => {
             <span class="sender">{{ message.role === 'assistant' ? 'Xiaomi MiMo' : '你' }}</span>
             <span class="timestamp">{{ formatTime(message.createdAt) }}</span>
           </div>
-          <p class="bubble-text">
-            {{ message.content }}
-          </p>
+          <div class="bubble-text markdown-body" v-html="renderMarkdown(message.content)"></div>
         </div>
       </div>
 
@@ -387,8 +396,49 @@ onMounted(() => {
 
 .bubble-text {
   margin: 0;
-  white-space: pre-wrap;
   line-height: 1.6;
+}
+
+.markdown-body :deep(p) {
+  margin: 0.5em 0;
+}
+
+.markdown-body :deep(p:first-child) {
+  margin-top: 0;
+}
+
+.markdown-body :deep(p:last-child) {
+  margin-bottom: 0;
+}
+
+.markdown-body :deep(pre) {
+  background: #f1f5f9;
+  padding: 0.75rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 0.5em 0;
+}
+
+.markdown-body :deep(code) {
+  font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+  font-size: 0.9em;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+}
+
+.markdown-body :deep(pre code) {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+.message-row.user .markdown-body :deep(pre) {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.message-row.user .markdown-body :deep(code) {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .bubble-text.muted {
