@@ -1,18 +1,25 @@
+<script setup lang="ts">
+defineProps<{
+  topic: string
+  score: number
+}>()
+</script>
+
 <template>
   <header class="chat-header">
     <div class="header-left">
       <div>
         <span class="topic-label">当前主题:</span>
-        <span class="topic-value">量子物理入门</span>
+        <span class="topic-value">{{ topic }}</span>
       </div>
     </div>
 
     <div class="header-center">
       <span class="gauge-label">理解程度:</span>
       <div class="gauge-container">
-        <div class="gauge-bar"></div>
+        <div class="gauge-bar" :style="{ width: score + '%' }"></div>
       </div>
-      <span class="gauge-label">15%</span>
+      <span class="gauge-label">{{ score }}%</span>
     </div>
 
     <div class="header-right">

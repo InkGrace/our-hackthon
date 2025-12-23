@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import ChatSidebar from '@/components/ChatSidebar.vue'
 import ChatHeader from '@/components/ChatHeader.vue'
 import MessageList from '@/components/MessageList.vue'
@@ -14,6 +14,8 @@ type Message = {
   createdAt: number
 }
 
+const STORAGE_KEY = 'chat_messages'
+
 const messages = ref<Message[]>([
   {
     id: 1,
@@ -22,6 +24,25 @@ const messages = ref<Message[]>([
     createdAt: Date.now() - 1000 * 60 * 5,
   },
 ])
+
+onMounted(() => {
+  const saved = localStorage.getItem(STORAGE_KEY)
+  if (saved) {
+    try {
+      messages.value = JSON.parse(saved)
+    } catch (e) {
+      console.error('Failed to load chat history', e)
+    }
+  }
+})
+
+watch(
+  messages,
+  (newVal) => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(newVal))
+  },
+  { deep: true },
+)
 
 const conversations = ref([
   { id: 1, title: '物理作业辅导', date: '今天' },
@@ -33,6 +54,8 @@ const conversations = ref([
 
 const composer = ref('')
 const isResponding = ref(false)
+const currentTopic = ref('等待开始...')
+const understandingScore = ref(0)
 
 const handleNewChat = () => {
   // Logic for new chat
@@ -55,7 +78,13 @@ const SYSTEM_PROMPT = `你是一个名叫"费曼"的好奇新手学生。
 3. 如果不懂，不要假装懂。指出解释中的盲点。
 4. 当你最终理解时，表达出明确的"顿悟"（Aha!）时刻，并用简单的语言总结你学到的东西。
 5. 保持回答简短、对话式，并专注于当前的概念。
-6. 称呼用户为"老师"或"教授"。`
+6. 称呼用户为"老师"或"教授"。
+
+IMPORTANT: At the very end of your response, you MUST output a metadata block strictly in this format:
+<<<METADATA: {"topic": "string", "score": number}>>>
+- "topic": The specific concept being discussed (in Chinese).
+- "score": An integer 0-100 representing your current understanding of THIS topic. Start low (0-20). Increase only when the user explains clearly. If you are confused, lower it.
+Example: <<<METADATA: {"topic": "量子纠缠", "score": 15}>>>`
 
 const sendMessage = async () => {
   const text = composer.value.trim()
@@ -136,32 +165,76 @@ const sendMessage = async () => {
 
         for (const line of lines) {
           const trimmed = line.trim()
-          if (!trimmed || trimmed === 'data: [DONE]') continue
+          if (!trimmed) continue
 
           if (trimmed.startsWith('data: ')) {
+            const dataStr = trimmed.slice(6)
+
+            if (dataStr === '[DONE]') {
+              done = true
+              break
+            }
+
             try {
-              const data = JSON.parse(trimmed.slice(6))
-              const content = data.choices?.[0]?.delta?.content
+              const data = JSON.parse(dataStr)
+              const content = data.choices[0]?.delta?.content || ''
               if (content) {
+                // Buffer the full content to check for metadata at the end
                 assistantMessage.content += content
+
+                // Check for metadata pattern
+                const metadataRegex = /<<<METADATA: ({.*})>>>/
+                const match = assistantMessage.content.match(metadataRegex)
+
+                if (match) {
+                  try {
+                    const metadata = JSON.parse(match[1])
+                    if (metadata.topic) currentTopic.value = metadata.topic as string
+                    if (typeof metadata.score === 'number')
+                      understandingScore.value = metadata.score
+
+                    // Remove metadata from display content
+                    assistantMessage.content = assistantMessage.content.replace(match[0], '').trim()
+                  } catch (e) {
+                    console.error('Failed to parse metadata JSON', e)
+                  }
+                }
               }
             } catch (e) {
-              console.error('Error parsing stream chunk', e)
+              console.error('Error parsing stream chunks', e)
             }
           }
         }
       }
     }
   } catch (err: unknown) {
-    const errMsg = err instanceof Error ? err.message : String(err)
-    if (!assistantMessage.content) {
-      assistantMessage.content = `Error: ${errMsg}`
-    } else {
-      assistantMessage.content += `\n[Error: ${errMsg}]`
+    if (err instanceof Error) {
+      if (err.name === 'AbortError') {
+        messages.value.push({
+          id: Date.now(),
+          role: 'assistant',
+          content: '请求已取消',
+          createdAt: Date.now(),
+        })
+      } else {
+        messages.value.push({
+          id: Date.now(),
+          role: 'assistant',
+          content: `发生错误: ${err.message}`,
+          createdAt: Date.now(),
+        })
+      }
     }
   } finally {
     isResponding.value = false
   }
+}
+
+const handleToggleSidebar = () => {
+  // Logic to toggle sidebar if needed, or remove if not used
+  // currently sidebar manages its own state, but we can emit from header if we want global control.
+  // For now, let's just log it or implement a global state if resizing is needed.
+  console.log('Toggle sidebar')
 }
 </script>
 
@@ -174,7 +247,11 @@ const sendMessage = async () => {
     />
 
     <div class="chat-shell">
-      <ChatHeader />
+      <ChatHeader
+        :topic="currentTopic"
+        :score="understandingScore"
+        @toggle-sidebar="handleToggleSidebar"
+      />
 
       <MessageList :messages="messages" :is-responding="isResponding" />
 
