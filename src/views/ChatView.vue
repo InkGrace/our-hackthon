@@ -196,9 +196,9 @@ const sendMessage = async () => {
 
 .chat-shell {
   flex: 1;
-  background: #f8fafc;
-  background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
-  background-size: 24px 24px;
+  background: #f0f4f8; /* Base wall color */
+  /* Wooden Desk Texture Gradient at bottom */
+  background-image: linear-gradient(to bottom, #f0f4f8 0%, #e2e8f0 80%, #d4d4d8 100%);
   color: #0f172a;
   display: grid;
   grid-template-rows: auto 1fr auto auto;

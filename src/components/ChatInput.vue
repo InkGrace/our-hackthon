@@ -50,27 +50,47 @@ const onInput = (e: Event) => {
   padding: 1rem 2rem 2rem;
   position: sticky;
   bottom: 0;
-  background: rgba(248, 250, 252, 0.8);
-  backdrop-filter: blur(10px);
-  border-top: 1px solid rgba(226, 232, 240, 0.6);
+  /* Glassy desk overlay */
+  background: linear-gradient(to bottom, rgba(212, 212, 216, 0.4), rgba(212, 212, 216, 0.9));
+  backdrop-filter: blur(4px);
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .input-wrapper {
   display: flex;
   gap: 1rem;
   background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 20px;
+  border: 1px solid #d1d5db; /* Grey binding */
+  border-radius: 4px; /* Notebook shape */
   padding: 1rem;
-  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 1px 1px rgba(0, 0, 0, 0.1),
+    0 8px 0 -4px #e5e7eb,
+    /* Stacked pages effect */ 0 8px 1px -4px rgba(0, 0, 0, 0.1),
+    0 16px 0 -8px #e5e7eb,
+    0 16px 1px -8px rgba(0, 0, 0, 0.1);
   max-width: 900px;
   margin: 0 auto;
   transition: all 0.2s;
+  position: relative;
+}
+
+/* Red margin line decoration */
+.input-wrapper::before {
+  content: '';
+  position: absolute;
+  left: 2rem;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #fca5a5; /* Light red margin */
+  opacity: 0.5;
+  pointer-events: none;
 }
 
 .input-wrapper:focus-within {
-  border-color: #99f6e4;
-  box-shadow: 0 10px 40px -5px rgba(13, 148, 136, 0.15);
+  border-color: #9ca3af;
+  transform: translateY(-2px);
 }
 
 textarea {
@@ -78,38 +98,43 @@ textarea {
   border: none;
   resize: none;
   outline: none;
-  font-size: 1rem;
-  font-family: inherit;
-  color: #0f172a;
+  font-size: 1.1rem;
+  font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; /* Handwriting font */
+  color: #1e3a8a; /* Blue Ink */
   background: transparent;
-  line-height: 1.5;
+  line-height: 1.6;
+  padding-left: 1.5rem; /* Space for margin line */
+  background-image: linear-gradient(#f3f4f6 1px, transparent 1px);
+  background-size: 100% 2rem;
+  background-attachment: local;
 }
 
 .send {
   align-self: flex-end;
   border: none;
-  border-radius: 14px;
+  border-radius: 4px;
   padding: 0.6rem 1.4rem;
-  background: linear-gradient(135deg, #2dd4bf, #0d9488);
+  background: #dc2626; /* Red Grading Pen */
   color: #fff;
   font-weight: 700;
   cursor: pointer;
-  transition:
-    transform 0.12s ease,
-    box-shadow 0.12s ease,
-    opacity 0.12s ease;
+  transition: all 0.2s ease;
   font-size: 0.95rem;
+  font-family: sans-serif;
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
 }
 
 .send:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  background: #cbd5e1;
+  background: #9ca3af;
+  box-shadow: none;
 }
 
 .send:not(:disabled):hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(13, 148, 136, 0.3);
+  transform: translateY(-2px) rotate(1deg);
+  background: #b91c1c;
+  box-shadow: 0 4px 8px rgba(185, 28, 28, 0.4);
 }
 
 @media (max-width: 780px) {

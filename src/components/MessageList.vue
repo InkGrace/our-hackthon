@@ -91,7 +91,9 @@ defineExpose({ scrollToBottom })
           <span></span>
           <span></span>
         </div>
-        <p class="bubble-text muted">正在思考...</p>
+        <p class="bubble-text muted" style="font-family: sans-serif; font-size: 0.9rem">
+          🙋‍♂️ 小爱正在举手回答...
+        </p>
       </div>
     </div>
   </main>
@@ -103,7 +105,7 @@ defineExpose({ scrollToBottom })
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
   flex: 1;
 }
 
@@ -123,50 +125,63 @@ defineExpose({ scrollToBottom })
 
 .message-row.user .avatar {
   order: 2;
+  background: #f59e0b; /* Teacher Orange */
+  color: #fff;
+  border: 2px solid #fff;
 }
 
 .message-row.user .bubble {
   order: 1;
   margin-left: auto;
-  background: linear-gradient(135deg, #2dd4bf, #0d9488);
-  color: #fff;
+  background: #fef3c7; /* Sticky Note Yellow */
+  color: #451a03;
   border: none;
-  box-shadow: 0 8px 20px rgba(13, 148, 136, 0.25);
-  border-bottom-right-radius: 4px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  transform: rotate(-1deg);
+  border-radius: 2px;
 }
 
 .avatar {
-  width: 42px;
-  height: 42px;
-  border-radius: 14px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
   background: #fff;
   display: grid;
   place-items: center;
   font-weight: 700;
   color: #0f172a;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  border: 1px solid #f1f5f9;
-  font-size: 0.9rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 2px solid #fff;
+  font-size: 1rem;
 }
 
 .avatar.assistant {
-  background: #0f172a;
+  background: #3b82f6; /* Student Blue */
   color: #fff;
 }
 
 .bubble {
-  background: #fff;
-  border-radius: 20px;
-  border-top-left-radius: 4px;
-  padding: 1rem 1.25rem;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  border: 1px solid #f1f5f9;
+  background: #fdfbf7; /* Paper Off-white */
+  border-radius: 2px;
+  padding: 1.5rem 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   min-width: 0;
-  transition: transform 0.2s;
+  position: relative;
+  /* Lined paper effect */
+  background-image: linear-gradient(#e5e7eb 1px, transparent 1px);
+  background-size: 100% 1.8rem;
+  line-height: 1.8rem;
+  border-left: 2px solid #ef4444; /* Margin line */
 }
 
-.bubble:hover {
-  transform: translateY(-1px);
+/* Align text to lines */
+.bubble-text,
+.markdown-body p {
+  line-height: 1.8rem;
+  margin: 0;
+  font-family: 'Georgia', serif;
+  font-size: 1.05rem;
+  color: #1f2937;
 }
 
 .bubble-header {
@@ -174,15 +189,19 @@ defineExpose({ scrollToBottom })
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   margin-bottom: 0.5rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px dashed #cbd5e1;
+  font-family: sans-serif;
 }
 
 .sender {
   font-weight: 700;
-  color: #0f172a;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.75rem;
 }
 
 .timestamp {
@@ -191,71 +210,53 @@ defineExpose({ scrollToBottom })
 }
 
 .message-row.user .sender {
-  color: rgba(255, 255, 255, 0.95);
+  color: #78350f;
 }
 
 .message-row.user .timestamp {
-  color: rgba(255, 255, 255, 0.8);
+  color: #92400e;
+  opacity: 0.7;
 }
 
 .message-row.user .bubble-header {
-  border-bottom-color: rgba(255, 255, 255, 0.2);
+  border-bottom: 1px dashed rgba(146, 64, 14, 0.2);
 }
 
-.bubble-text {
-  margin: 0;
-  line-height: 1.7;
-  font-size: 0.95rem;
+.message-row.user .bubble-text,
+.message-row.user .markdown-body p {
+  font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; /* Teacher Handwriting */
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* User bubble reset background image */
+.message-row.user .bubble {
+  background-image: none;
+  border-left: none;
+  padding: 1rem 1.5rem;
 }
 
 .markdown-body :deep(p) {
-  margin: 0.6em 0;
+  margin: 0;
 }
 
-.markdown-body :deep(p:first-child) {
-  margin-top: 0;
-}
-
-.markdown-body :deep(p:last-child) {
-  margin-bottom: 0;
-}
-
+/* Code blocks on paper */
 .markdown-body :deep(pre) {
-  background: #f8fafc;
+  background: #f1f5f9;
   padding: 1rem;
-  border-radius: 12px;
+  border-radius: 4px;
   overflow-x: auto;
-  margin: 0.8em 0;
-  border: 1px solid #e2e8f0;
+  margin: 0.9rem 0;
+  border: 1px solid #cbd5e1;
+  font-family: monospace;
+  line-height: 1.4;
 }
 
 .markdown-body :deep(code) {
-  font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
-  font-size: 0.9em;
+  font-family: monospace;
   background: rgba(0, 0, 0, 0.05);
-  padding: 0.2em 0.4em;
-  border-radius: 6px;
-  color: #0f172a;
-}
-
-.markdown-body :deep(pre code) {
-  background: transparent;
-  padding: 0;
-  color: inherit;
-}
-
-.message-row.user .markdown-body :deep(pre) {
-  background: rgba(0, 0, 0, 0.1);
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-.message-row.user .markdown-body :deep(code) {
-  background: rgba(0, 0, 0, 0.15);
-  color: #fff;
-}
-
-.bubble-text.muted {
-  color: #94a3b8;
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
 }
 
 .typing {
@@ -263,11 +264,15 @@ defineExpose({ scrollToBottom })
   align-items: center;
   gap: 0.6rem;
   padding: 1rem 1.5rem;
+  background: transparent;
+  box-shadow: none;
+  background-image: none;
+  border: none;
 }
 
 .typing-dots span {
   width: 8px;
   height: 8px;
-  background: #0d9488;
+  background: #3b82f6;
 }
 </style>

@@ -22,12 +22,12 @@
   align-items: center;
   justify-content: space-between;
   padding: 1rem 2rem;
-  border-bottom: 1px solid #f1f5f9;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(20px);
+  border-bottom: 4px solid #8b4513; /* Wood trim */
+  background: #1e3a2f; /* Blackboard Green */
   position: sticky;
   top: 0;
   z-index: 10;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .header-left {
@@ -39,62 +39,67 @@
 .brand-mark {
   height: 48px;
   width: 48px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #2dd4bf, #0d9488);
+  border-radius: 4px;
+  background: #fff;
   display: grid;
   place-items: center;
-  color: #fff;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  font-size: 1.2rem;
-  box-shadow: 0 8px 16px rgba(13, 148, 136, 0.2);
+  color: #1e3a2f;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  font-size: 1.4rem;
+  font-family: 'Courier New', Courier, monospace;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: rotate(-3deg);
 }
 
 .title {
-  font-weight: 800;
+  font-weight: 700;
   margin: 0;
-  font-size: 1.25rem;
-  color: #0f172a;
-  letter-spacing: -0.02em;
+  font-size: 1.4rem;
+  color: #fff; /* Chalk white */
+  font-family: 'Noteworthy', 'Comic Sans MS', sans-serif;
+  letter-spacing: 0.02em;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.1);
 }
 
 .subtitle {
   margin: 0.2rem 0 0;
-  color: #64748b;
+  color: rgba(255, 255, 255, 0.8);
   font-size: 0.9rem;
-  font-weight: 500;
+  font-family: 'Courier New', Courier, monospace;
 }
 
 .header-right {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  color: #0d9488;
+  gap: 0.6rem;
+  color: #fff;
   font-weight: 600;
-  background: #f0fdfa;
-  padding: 0.4rem 0.8rem;
-  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.4rem 1rem;
+  border-radius: 4px;
   font-size: 0.9rem;
+  border: 1px dashed rgba(255, 255, 255, 0.3);
 }
 
 .status-dot {
-  width: 8px;
-  height: 8px;
-  background: #14b8a6;
+  width: 10px;
+  height: 10px;
+  background: #4ade80;
   border-radius: 50%;
-  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.2);
+  box-shadow: 0 0 5px rgba(74, 222, 128, 0.5);
   animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.4);
+    opacity: 0.6;
   }
-  70% {
-    box-shadow: 0 0 0 6px rgba(20, 184, 166, 0);
+  50% {
+    opacity: 1;
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(20, 184, 166, 0);
+    opacity: 0.6;
   }
 }
 </style>
