@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 const startTeaching = () => {
-  router.push('/chat')
+  router.push('/select-role')
 }
 </script>
 

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import ChatSidebar from '@/components/ChatSidebar.vue'
 import ChatHeader from '@/components/ChatHeader.vue'
 import MessageList from '@/components/MessageList.vue'
@@ -14,6 +15,7 @@ type Message = {
   createdAt: number
 }
 
+const route = useRoute()
 const STORAGE_KEY = 'chat_messages'
 
 const messages = ref<Message[]>([
@@ -70,10 +72,16 @@ const handleSelectChat = (id: number) => {
 const VITE_MIMO_KEY = import.meta.env.VITE_MIMO_KEY
 const VITE_MIMO_MODEL = import.meta.env.VITE_MIMO_MODEL
 
-const SYSTEM_PROMPT = `你是一个名叫"费曼"的好奇新手学生。
+const selectedRole = computed(() => {
+  return (route.query.role as string) || '好奇的初学者'
+})
+
+const SYSTEM_PROMPT = computed(
+  () => `你是一个名叫"费曼"的好奇新手学生。
+【角色设定】: ${selectedRole.value}
 你的目标是向用户（你的老师）学习。
 行为准则：
-1. 像一个渴望学习但容易困惑的初学者一样表现。
+1. 像一个渴望学习但容易困惑的初学者一样表现。结合你的角色设定，展现出该角色特有的思维方式和知识背景。
 2. 经常问"为什么？"和"你能举个例子吗？"。
 3. 如果不懂，不要假装懂。指出解释中的盲点。
 4. 当你最终理解时，表达出明确的"顿悟"（Aha!）时刻，并用简单的语言总结你学到的东西。
@@ -84,7 +92,8 @@ IMPORTANT: At the very end of your response, you MUST output a metadata block st
 <<<METADATA: {"topic": "string", "score": number}>>>
 - "topic": The specific concept being discussed (in Chinese).
 - "score": An integer 0-100 representing your current understanding of THIS topic. Start low (0-20). Increase only when the user explains clearly. If you are confused, lower it.
-Example: <<<METADATA: {"topic": "量子纠缠", "score": 15}>>>`
+Example: <<<METADATA: {"topic": "量子纠缠", "score": 15}>>>`,
+)
 
 const sendMessage = async () => {
   const text = composer.value.trim()
@@ -126,7 +135,7 @@ const sendMessage = async () => {
       body: JSON.stringify({
         model: VITE_MIMO_MODEL,
         messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'system', content: SYSTEM_PROMPT.value },
           { role: 'user', content: text },
         ],
         max_completion_tokens: 1024,
