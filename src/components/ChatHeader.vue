@@ -1,17 +1,22 @@
 <template>
   <header class="chat-header">
     <div class="header-left">
-      <div class="brand-mark">
-        <span>学</span>
-      </div>
       <div>
-        <p class="title">AI 课堂互动</p>
-        <p class="subtitle">我是学生，你是老师</p>
+        <span class="topic-label">当前主题:</span>
+        <span class="topic-value">量子物理入门</span>
       </div>
     </div>
+
+    <div class="header-center">
+      <span class="gauge-label">理解程度:</span>
+      <div class="gauge-container">
+        <div class="gauge-bar"></div>
+      </div>
+      <span class="gauge-label">15%</span>
+    </div>
+
     <div class="header-right">
-      <span class="status-dot"></span>
-      <span class="status-text">正在听讲</span>
+      <span class="brain-icon">🧠</span>
     </div>
   </header>
 </template>
@@ -22,12 +27,13 @@
   align-items: center;
   justify-content: space-between;
   padding: 1rem 2rem;
-  border-bottom: 4px solid #8b4513; /* Wood trim */
-  background: #1e3a2f; /* Blackboard Green */
+  background: #fffbeb; /* Cream/Parchment */
+  border-bottom: 2px solid #e5e7eb;
   position: sticky;
   top: 0;
   z-index: 10;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  color: #1f2937;
 }
 
 .header-left {
@@ -36,70 +42,72 @@
   gap: 1rem;
 }
 
-.brand-mark {
-  height: 48px;
-  width: 48px;
-  border-radius: 4px;
-  background: #fff;
-  display: grid;
-  place-items: center;
-  color: #1e3a2f;
-  font-weight: 800;
+.topic-label {
+  font-size: 0.85rem;
+  color: #6b7280;
+  text-transform: uppercase;
   letter-spacing: 0.05em;
-  font-size: 1.4rem;
-  font-family: 'Courier New', Courier, monospace;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transform: rotate(-3deg);
+  font-weight: 600;
 }
 
-.title {
+.topic-value {
+  font-size: 1.1rem;
   font-weight: 700;
-  margin: 0;
-  font-size: 1.4rem;
-  color: #fff; /* Chalk white */
-  font-family: 'Noteworthy', 'Comic Sans MS', sans-serif;
-  letter-spacing: 0.02em;
-  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.1);
+  color: #1f2937;
+  font-family: 'Georgia', serif;
 }
 
-.subtitle {
-  margin: 0.2rem 0 0;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 0.9rem;
-  font-family: 'Courier New', Courier, monospace;
+.header-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  max-width: 400px;
+}
+
+.gauge-container {
+  flex: 1;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.gauge-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #fbbf24, #10b981); /* Knowledge gradient */
+  width: 15%; /* Initial state: confused */
+  border-radius: 999px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gauge-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #059669;
+  white-space: nowrap;
 }
 
 .header-right {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 0.6rem;
-  color: #fff;
-  font-weight: 600;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 0.4rem 1rem;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  border: 1px dashed rgba(255, 255, 255, 0.3);
+  gap: 0.5rem;
 }
 
-.status-dot {
-  width: 10px;
-  height: 10px;
-  background: #4ade80;
-  border-radius: 50%;
-  box-shadow: 0 0 5px rgba(74, 222, 128, 0.5);
-  animation: pulse 2s infinite;
+.brain-icon {
+  font-size: 1.5rem;
+  animation: bounce 2s infinite;
 }
 
-@keyframes pulse {
-  0% {
-    opacity: 0.6;
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
   }
   50% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0.6;
+    transform: translateY(-3px);
   }
 }
 </style>

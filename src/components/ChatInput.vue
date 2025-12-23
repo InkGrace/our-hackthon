@@ -1,7 +1,7 @@
 <script setup lang="ts">
-const props = defineProps<{
+defineProps<{
   modelValue: string
-  disabled: boolean
+  disabled?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -9,17 +9,10 @@ const emit = defineEmits<{
   (e: 'send'): void
 }>()
 
-const handleKeydown = (event: KeyboardEvent) => {
-  if (event.key === 'Enter' && !event.shiftKey) {
-    event.preventDefault()
-    if (!props.modelValue.trim() || props.disabled) return
+const handleEnter = (e: KeyboardEvent) => {
+  if (!e.shiftKey) {
     emit('send')
   }
-}
-
-const onInput = (e: Event) => {
-  const target = e.target as HTMLTextAreaElement
-  emit('update:modelValue', target.value)
 }
 </script>
 
@@ -28,18 +21,13 @@ const onInput = (e: Event) => {
     <div class="input-wrapper">
       <textarea
         :value="modelValue"
-        rows="3"
-        placeholder="给 AI 学员讲解知识或布置任务..."
-        @keydown="handleKeydown"
-        @input="onInput"
+        rows="1"
+        placeholder="清晰地解释这个概念..."
+        @keydown.enter.prevent="handleEnter"
+        @input="$emit('update:modelValue', ($event.target as HTMLTextAreaElement).value)"
       ></textarea>
-      <button
-        class="send"
-        type="button"
-        :disabled="!modelValue.trim() || disabled"
-        @click="emit('send')"
-      >
-        发送
+      <button class="send" @click="$emit('send')" :disabled="!modelValue || disabled">
+        教教我
       </button>
     </div>
   </footer>
@@ -47,49 +35,47 @@ const onInput = (e: Event) => {
 
 <style scoped>
 .composer {
-  padding: 1rem 2rem 2rem;
-  position: sticky;
-  bottom: 0;
-  /* Glassy desk overlay */
-  background: linear-gradient(to bottom, rgba(212, 212, 216, 0.4), rgba(212, 212, 216, 0.9));
-  backdrop-filter: blur(4px);
-  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 1.5rem 2rem 2.5rem;
+  position: relative;
+  background: transparent;
+  border-top: none;
+  display: flex;
+  justify-content: center;
 }
 
 .input-wrapper {
   display: flex;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.8rem;
   background: #fff;
-  border: 1px solid #d1d5db; /* Grey binding */
-  border-radius: 4px; /* Notebook shape */
+  border: 1px solid #d1d5db;
+  border-radius: 8px; /* Classic notepad */
   padding: 1rem;
   box-shadow:
-    0 1px 1px rgba(0, 0, 0, 0.1),
-    0 8px 0 -4px #e5e7eb,
-    /* Stacked pages effect */ 0 8px 1px -4px rgba(0, 0, 0, 0.1),
-    0 16px 0 -8px #e5e7eb,
-    0 16px 1px -8px rgba(0, 0, 0, 0.1);
-  max-width: 900px;
-  margin: 0 auto;
+    0 10px 15px -3px rgba(0, 0, 0, 0.05),
+    0 4px 6px -2px rgba(0, 0, 0, 0.025);
+  width: 100%;
+  max-width: 800px; /* Focused width */
   transition: all 0.2s;
   position: relative;
 }
 
-/* Red margin line decoration */
+/* Spiral binding visual top */
 .input-wrapper::before {
   content: '';
   position: absolute;
-  left: 2rem;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: #fca5a5; /* Light red margin */
+  top: -12px;
+  left: 20px;
+  right: 20px;
+  height: 12px;
+  background-image: linear-gradient(to right, #9ca3af 20%, transparent 20%);
+  background-size: 20px 100%;
   opacity: 0.5;
-  pointer-events: none;
 }
 
 .input-wrapper:focus-within {
-  border-color: #9ca3af;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   transform: translateY(-2px);
 }
 
@@ -98,49 +84,51 @@ textarea {
   border: none;
   resize: none;
   outline: none;
-  font-size: 1.1rem;
-  font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; /* Handwriting font */
-  color: #1e3a8a; /* Blue Ink */
+  font-size: 1.05rem;
+  font-family: 'Georgia', serif;
+  color: #1f2937;
   background: transparent;
   line-height: 1.6;
-  padding-left: 1.5rem; /* Space for margin line */
+  padding: 0;
+  min-height: 60px;
+  /* Lined paper helper */
   background-image: linear-gradient(#f3f4f6 1px, transparent 1px);
   background-size: 100% 2rem;
   background-attachment: local;
+  line-height: 2rem;
 }
 
 .send {
   align-self: flex-end;
   border: none;
-  border-radius: 4px;
-  padding: 0.6rem 1.4rem;
-  background: #dc2626; /* Red Grading Pen */
+  border-radius: 6px;
+  padding: 0.6rem 1.2rem;
+  background: #10b981; /* Growth Green */
   color: #fff;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 0.95rem;
+  transition: all 0.2s;
+  font-size: 0.9rem;
   font-family: sans-serif;
-  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.send::before {
+  content: '🧑‍🏫';
+  font-size: 1.1rem;
 }
 
 .send:disabled {
-  opacity: 0.5;
+  opacity: 0.6;
   cursor: not-allowed;
-  background: #9ca3af;
-  box-shadow: none;
+  background: #d1d5db;
 }
 
 .send:not(:disabled):hover {
-  transform: translateY(-2px) rotate(1deg);
-  background: #b91c1c;
-  box-shadow: 0 4px 8px rgba(185, 28, 28, 0.4);
-}
-
-@media (max-width: 780px) {
-  .composer {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
+  background: #059669;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
 }
 </style>

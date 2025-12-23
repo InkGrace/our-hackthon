@@ -10,7 +10,7 @@ const emit = defineEmits<{
   (e: 'select-chat', id: number): void
 }>()
 
-const isCollapsed = ref(false)
+const isCollapsed = ref(true)
 </script>
 
 <template>
@@ -47,7 +47,11 @@ const isCollapsed = ref(false)
         <span class="username" v-if="!isCollapsed">老师(我)</span>
       </div>
 
-      <button class="collapse-btn" @click="isCollapsed = !isCollapsed">
+      <button
+        class="collapse-btn"
+        @click="isCollapsed = !isCollapsed"
+        :title="isCollapsed ? '展开侧边栏' : '收起侧边栏'"
+      >
         <span>{{ isCollapsed ? '→' : '←' }}</span>
       </button>
     </div>
