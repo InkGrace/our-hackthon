@@ -138,11 +138,13 @@ const SYSTEM_PROMPT = computed(() => {
 3. 当你最终理解时，表达出该模式下特有的反馈感。
 4. 称呼用户为"老师"或"教授"。
 
-IMPORTANT: At the very end of your response, you MUST output a metadata block strictly in this format:
-<<<METADATA: {"topic": "string", "score": number}>>>
-- "topic": The specific concept being discussed (in Chinese).
-- "score": An integer 0-100 representing your current understanding of THIS topic. Start low (0-20). Increase only when the user explains clearly. If you are confused, lower it.
-Example: <<<METADATA: {"topic": "${subject.value}", "score": 15}>>>`
+IMPORTANT: at the end of your response, strictly output your current understanding score and topic using these tags:
+[TOPIC: the concept being discussed]
+[SCORE: number 0-100]
+
+Example:
+[TOPIC: ${subject.value}]
+[SCORE: 15]`
 })
 
 const sendMessage = async () => {
@@ -244,22 +246,26 @@ const sendMessage = async () => {
                 // Buffer the full content to check for metadata at the end
                 assistantMessage.content += content
 
-                // Check for metadata pattern (formatted robustly)
-                const metadataRegex = /<<<METADATA:\s*(\{[\s\S]*?\})\s*>>>/
-                const match = assistantMessage.content.match(metadataRegex)
+                // Check for Topic
+                const topicRegex = /\[TOPIC:\s*(.*?)\]/
+                const topicMatch = assistantMessage.content.match(topicRegex)
+                if (topicMatch) {
+                  const newTopic = topicMatch[1].trim()
+                  if (newTopic) currentTopic.value = newTopic
+                  assistantMessage.content = assistantMessage.content
+                    .replace(topicMatch[0], '')
+                    .trim()
+                }
 
-                if (match) {
-                  try {
-                    const metadata = JSON.parse(match[1])
-                    if (metadata.topic) currentTopic.value = metadata.topic as string
-                    if (typeof metadata.score === 'number')
-                      understandingScore.value = metadata.score
-
-                    // Remove metadata from display content
-                    assistantMessage.content = assistantMessage.content.replace(match[0], '').trim()
-                  } catch (e) {
-                    console.error('Failed to parse metadata JSON', e)
-                  }
+                // Check for Score
+                const scoreRegex = /\[SCORE:\s*(\d+)\]/
+                const scoreMatch = assistantMessage.content.match(scoreRegex)
+                if (scoreMatch) {
+                  const newScore = parseInt(scoreMatch[1], 10)
+                  if (!isNaN(newScore)) understandingScore.value = newScore
+                  assistantMessage.content = assistantMessage.content
+                    .replace(scoreMatch[0], '')
+                    .trim()
                 }
               }
             } catch (e) {
