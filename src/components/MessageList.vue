@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, onMounted, ref, watch } from 'vue'
+import { nextTick, onMounted, ref, watch, computed } from 'vue'
 import MarkdownIt from 'markdown-it'
 
 type Role = 'user' | 'assistant'
@@ -80,12 +80,24 @@ onMounted(() => {
   scrollToBottom()
 })
 
+const showTyping = computed(() => {
+  if (!props.isResponding) return false
+  const lastMsg = props.messages[props.messages.length - 1]
+  return !lastMsg || lastMsg.role !== 'assistant' || !lastMsg.content
+})
+
 defineExpose({ scrollToBottom })
 </script>
 
 <template>
   <main class="chat-body" ref="messagePane">
-    <div v-for="message in messages" :key="message.id" class="message-row" :class="message.role">
+    <div
+      v-for="message in messages"
+      :key="message.id"
+      class="message-row"
+      :class="message.role"
+      v-show="message.content"
+    >
       <!-- Avatar hidden via CSS for cleaner doc look -->
       <!-- <div class="avatar" :class="message.role">
         <span>{{ message.role === 'assistant' ? '生' : '师' }}</span>
@@ -99,7 +111,7 @@ defineExpose({ scrollToBottom })
       </div>
     </div>
 
-    <div v-if="isResponding" class="message-row assistant typing-row">
+    <div v-if="showTyping" class="message-row assistant typing-row">
       <!-- <div class="avatar assistant"><span>生</span></div> -->
       <div class="bubble typing">
         <div class="typing-dots">
@@ -140,11 +152,12 @@ defineExpose({ scrollToBottom })
 }
 
 .message-row.user {
-  align-items: flex-start;
+  align-items: flex-end; /* User on Right */
+  padding-left: 2rem;
 }
 
 .message-row.assistant {
-  align-items: flex-end;
+  align-items: flex-start; /* AI on Left */
   padding-right: 2rem;
 }
 
@@ -159,18 +172,20 @@ defineExpose({ scrollToBottom })
   font-family: 'Georgia', serif; /* Academic font */
   line-height: 1.8;
   position: relative;
+  text-align: left; /* Keep text aligned left inside */
 }
 
+/* Move User Spine to Right */
 .message-row.user .bubble::before {
   content: '';
   position: absolute;
   top: 0;
-  left: 0;
+  right: 0; /* Spine on Right */
   bottom: 0;
   width: 4px;
   background: #3b82f6; /* Blue spine */
-  border-top-left-radius: 4px;
-  border-bottom-left-radius: 4px;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
 }
 
 /* Novice Student Bubble (Sticky Note) */
@@ -181,7 +196,7 @@ defineExpose({ scrollToBottom })
   border-radius: 2px;
   box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.1);
   max-width: 70%;
-  transform: rotate(1deg); /* Imperfect placement */
+  transform: rotate(-1deg); /* Rotate other way for variety? */
   font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; /* Handwritten notes */
   font-size: 1.05rem;
   border: none;
@@ -196,6 +211,11 @@ defineExpose({ scrollToBottom })
   align-items: center;
   gap: 0.8rem;
   margin-bottom: 0.5rem;
+}
+
+/* Reverse header for User (Sender name on right?) */
+.message-row.user .bubble-header {
+  flex-direction: row-reverse;
 }
 
 .sender {
@@ -227,11 +247,11 @@ defineExpose({ scrollToBottom })
 @keyframes popIn {
   from {
     opacity: 0;
-    transform: scale(0.9) rotate(5deg);
+    transform: scale(0.9) rotate(-5deg);
   }
   to {
     opacity: 1;
-    transform: scale(1) rotate(1deg);
+    transform: scale(1) rotate(-1deg);
   }
 }
 

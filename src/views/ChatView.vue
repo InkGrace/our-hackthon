@@ -18,7 +18,6 @@ type Message = {
 
 const route = useRoute()
 const router = useRouter()
-const STORAGE_KEY = 'chat_messages'
 
 const handleEndTeaching = () => {
   router.push('/settlement')
@@ -46,24 +45,46 @@ const messages = ref<Message[]>([
   },
 ])
 
+const composer = ref('')
+const isResponding = ref(false)
+const currentTopic = ref(subject.value)
+const understandingScore = ref(0)
+const STORAGE_KEY = 'chat_state'
+
 onMounted(() => {
   const saved = localStorage.getItem(STORAGE_KEY)
   if (saved) {
     try {
       const parsed = JSON.parse(saved)
-      if (parsed.length > 0 && parsed[0].content === initialMessage.value) {
-        messages.value = parsed
+      if (parsed.messages && parsed.messages.length > 0) {
+        messages.value = parsed.messages
       }
+      if (parsed.topic) currentTopic.value = parsed.topic
+      if (typeof parsed.score === 'number') understandingScore.value = parsed.score
     } catch (e) {
       console.error('Failed to load chat history', e)
     }
+  } else {
+    // If no saved state, ensure we have the initial message (already set by default)
   }
 })
 
 watch(
-  messages,
-  (newVal) => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newVal))
+  [messages, currentTopic, understandingScore],
+  () => {
+    const state = {
+      messages: messages.value,
+      topic: currentTopic.value,
+      score: understandingScore.value,
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+    // Also sync legacy key for settlement view if it still relies on it?
+    // SettlementView uses 'chat_messages'. We should update SettlementView to use 'chat_state' or sync it.
+    // Let's check SettlementView.
+    // Ideally we update SettlementView to read 'chat_state'.
+    // For now, let's ALSO save to 'chat_messages' to avoid breaking SettlementView immediately,
+    // or just update SettlementView in next step.
+    localStorage.setItem('chat_messages', JSON.stringify(messages.value))
   },
   { deep: true },
 )
@@ -76,14 +97,24 @@ const conversations = ref([
   { id: 5, title: 'Python 基础入门', date: '7天前' },
 ])
 
-const composer = ref('')
-const isResponding = ref(false)
-const currentTopic = ref(subject.value)
-const understandingScore = ref(0)
-
 const handleNewChat = () => {
-  // Logic for new chat
-  console.log('New chat')
+  localStorage.removeItem(STORAGE_KEY)
+  localStorage.removeItem('chat_messages')
+
+  // Reset state
+  messages.value = [
+    {
+      id: Date.now(),
+      role: 'assistant',
+      content: initialMessage.value, // Re-compute initial message?
+      // initialMessage is computed based on subject/mode.
+      // If user wants "New Chat" does it mean keep subject/mode or reset completely?
+      // Usually "New Chat" in this context implies "Restart this session".
+      createdAt: Date.now(),
+    },
+  ]
+  currentTopic.value = subject.value
+  understandingScore.value = 0
 }
 
 const handleSelectChat = (id: number) => {
@@ -129,13 +160,16 @@ const sendMessage = async () => {
   composer.value = ''
 
   const assistantId = Date.now() + 1
-  const assistantMessage: Message = {
+  messages.value.push({
     id: assistantId,
     role: 'assistant',
     content: '',
     createdAt: Date.now(),
-  }
-  messages.value.push(assistantMessage)
+  })
+  // Get the reactive message object from the array
+  const assistantMessage = messages.value[messages.value.length - 1]
+  if (!assistantMessage) return // Should not happen
+
   isResponding.value = true
 
   try {
@@ -210,8 +244,8 @@ const sendMessage = async () => {
                 // Buffer the full content to check for metadata at the end
                 assistantMessage.content += content
 
-                // Check for metadata pattern
-                const metadataRegex = /<<<METADATA: ({.*})>>>/
+                // Check for metadata pattern (formatted robustly)
+                const metadataRegex = /<<<METADATA:\s*(\{[\s\S]*?\})\s*>>>/
                 const match = assistantMessage.content.match(metadataRegex)
 
                 if (match) {

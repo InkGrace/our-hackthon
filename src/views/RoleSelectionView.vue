@@ -9,7 +9,7 @@ const modes = [
     id: 'beginner',
     emoji: '🧒',
     label: '初级模式',
-    description: '教 5 岁小孩',
+    description: '教小学学生',
   },
   {
     id: 'intermediate',
