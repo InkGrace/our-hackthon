@@ -27,7 +27,7 @@ const handleEnter = (e: KeyboardEvent) => {
         @input="$emit('update:modelValue', ($event.target as HTMLTextAreaElement).value)"
       ></textarea>
       <button class="send" @click="$emit('send')" :disabled="!modelValue || disabled">
-        教教我
+        教教 AI
       </button>
     </div>
   </footer>

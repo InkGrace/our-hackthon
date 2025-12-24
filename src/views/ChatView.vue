@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import ChatSidebar from '@/components/ChatSidebar.vue'
 import ChatHeader from '@/components/ChatHeader.vue'
 import MessageList from '@/components/MessageList.vue'
@@ -17,7 +17,12 @@ type Message = {
 }
 
 const route = useRoute()
+const router = useRouter()
 const STORAGE_KEY = 'chat_messages'
+
+const handleEndTeaching = () => {
+  router.push('/settlement')
+}
 
 const subject = computed(() => (route.query.subject as string) || '待定课题')
 const mode = computed(() => (route.query.mode as string) || 'beginner')
@@ -274,9 +279,10 @@ const handleToggleSidebar = () => {
         :topic="currentTopic"
         :score="understandingScore"
         @toggle-sidebar="handleToggleSidebar"
+        @end-teaching="handleEndTeaching"
       />
 
-      <MessageList :messages="messages" :is-responding="isResponding" />
+      <MessageList :messages="messages" :is-responding="isResponding" :mode="mode" />
 
       <ChatInput
         v-model="composer"

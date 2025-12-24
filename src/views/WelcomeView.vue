@@ -13,7 +13,7 @@ const startTeaching = () => {
     <div class="content">
       <div class="hero">
         <div class="icon">
-          <img width="128px" height="128px" src="/public/琢玉GPT.png" alt="" />
+          <img width="128px" height="128px" src="/src/assets/GPT.png" alt="" />
         </div>
         <h1>琢玉 GPT</h1>
         <p class="subtitle">费曼技巧驱动的生成式反向教学智能体</p>

@@ -14,6 +14,7 @@ type Message = {
 const props = defineProps<{
   messages: Message[]
   isResponding: boolean
+  mode: string
 }>()
 
 const messagePane = ref<HTMLElement | null>(null)
@@ -32,7 +33,23 @@ const formatTime = (timestamp: number) =>
   new Intl.DateTimeFormat('zh-CN', {
     hour: '2-digit',
     minute: '2-digit',
+    second: '2-digit',
   }).format(new Date(timestamp))
+
+const getSenderName = (message: Message) => {
+  if (message.role === 'user') return '老师 (我)'
+
+  switch (props.mode) {
+    case 'beginner':
+      return '小宝 (5岁)'
+    case 'intermediate':
+      return '费曼 (学生)'
+    case 'expert':
+      return '专家评审 (专家)'
+    default:
+      return '费曼 (学生)'
+  }
+}
 
 const scrollToBottom = async () => {
   await nextTick()
@@ -75,9 +92,7 @@ defineExpose({ scrollToBottom })
       </div> -->
       <div class="bubble">
         <div class="bubble-header">
-          <span class="sender">{{
-            message.role === 'assistant' ? '费曼 (新手)' : '教授 (我)'
-          }}</span>
+          <span class="sender">{{ getSenderName(message) }}</span>
           <span class="timestamp">{{ formatTime(message.createdAt) }}</span>
         </div>
         <div class="bubble-text markdown-body" v-html="renderMarkdown(message.content)"></div>

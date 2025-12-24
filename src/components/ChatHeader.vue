@@ -3,6 +3,11 @@ defineProps<{
   topic: string
   score: number
 }>()
+
+const emit = defineEmits<{
+  (e: 'toggle-sidebar'): void
+  (e: 'end-teaching'): void
+}>()
 </script>
 
 <template>
@@ -15,7 +20,7 @@ defineProps<{
     </div>
 
     <div class="header-center">
-      <span class="gauge-label">理解程度:</span>
+      <span class="gauge-label">AI 理解程度:</span>
       <div class="gauge-container">
         <div class="gauge-bar" :style="{ width: score + '%' }"></div>
       </div>
@@ -23,6 +28,7 @@ defineProps<{
     </div>
 
     <div class="header-right">
+      <button class="end-btn" @click="emit('end-teaching')">结束教学</button>
       <span class="brain-icon">📑</span>
     </div>
   </header>
@@ -109,12 +115,25 @@ defineProps<{
 }
 
 @keyframes bounce {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
   50% {
     transform: translateY(-3px);
   }
+}
+
+.end-btn {
+  background: #ef4444; /* Red-500 */
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 99px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-right: 0.5rem;
+}
+
+.end-btn:hover {
+  background: #dc2626; /* Red-600 */
 }
 </style>
