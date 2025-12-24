@@ -12,31 +12,33 @@ const startTeaching = () => {
   <div class="welcome-container">
     <div class="content">
       <div class="hero">
-        <div class="icon">🎓</div>
-        <h1>费曼智能体</h1>
-        <p class="subtitle">以教代学 · 深度掌握</p>
+        <div class="icon">
+          <img width="128px" height="128px" src="/public/琢玉GPT.png" alt="" />
+        </div>
+        <h1>琢玉 GPT</h1>
+        <p class="subtitle">费曼技巧驱动的生成式反向教学智能体</p>
       </div>
 
       <div class="features">
         <div class="feature-card">
-          <span class="feature-icon">🔄</span>
+          <!-- <span class="feature-icon">🔄</span> -->
           <h3>角色互换</h3>
           <p>打破传统，你是老师，AI 是学生。通过输出来倒逼输入。</p>
         </div>
         <div class="feature-card">
-          <span class="feature-icon">🧠</span>
+          <!-- <span class="feature-icon">🧠</span> -->
           <h3>掌握度追踪</h3>
           <p>实时可视化的"理解仪表盘"，让你的教学效果一目了然。</p>
         </div>
         <div class="feature-card">
-          <span class="feature-icon">⚡️</span>
+          <!-- <span class="feature-icon">⚡️</span> -->
           <h3>苏格拉底提问</h3>
           <p>AI 不会轻易"听懂"，它会像好奇的新手一样不断追问"为什么"。</p>
         </div>
       </div>
 
       <button class="start-btn" @click="startTeaching">
-        开始教学
+        开始
         <span class="arrow">→</span>
       </button>
     </div>
@@ -60,7 +62,7 @@ const startTeaching = () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4rem;
+  gap: 2rem;
 }
 
 .hero {
