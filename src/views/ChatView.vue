@@ -5,6 +5,7 @@ import ChatSidebar from '@/components/ChatSidebar.vue'
 import ChatHeader from '@/components/ChatHeader.vue'
 import MessageList from '@/components/MessageList.vue'
 import ChatInput from '@/components/ChatInput.vue'
+import PROMPTS from '@/constants/prompt'
 
 type Role = 'user' | 'assistant'
 
@@ -18,12 +19,25 @@ type Message = {
 const route = useRoute()
 const STORAGE_KEY = 'chat_messages'
 
+const subject = computed(() => (route.query.subject as string) || '待定课题')
+const mode = computed(() => (route.query.mode as string) || 'beginner')
+
+const initialMessage = computed(() => {
+  if (mode.value === 'expert') {
+    return `你好。我是你的同行评审员。听说你今天要跟我探讨关于“${subject.value}”的专业见解？请开始你的陈述，我会根据专业标准进行评估。`
+  } else if (mode.value === 'intermediate') {
+    return `老师好！听说今天要教我“${subject.value}”？我已经准备好思考了，不过我可能会问一些比较深入的问题来理清逻辑哦。`
+  } else {
+    return `老师好！我是 5 岁的小爱。听说今天要教我“${subject.value}”？那是什么呀？能用我听得懂的话告诉我吗？`
+  }
+})
+
 const messages = ref<Message[]>([
   {
     id: 1,
     role: 'assistant',
-    content: '老师好！我是您的学生小爱。今天我们要学习什么新知识呢？我已经迫不及待了！',
-    createdAt: Date.now() - 1000 * 60 * 5,
+    content: initialMessage.value,
+    createdAt: Date.now(),
   },
 ])
 
@@ -31,7 +45,10 @@ onMounted(() => {
   const saved = localStorage.getItem(STORAGE_KEY)
   if (saved) {
     try {
-      messages.value = JSON.parse(saved)
+      const parsed = JSON.parse(saved)
+      if (parsed.length > 0 && parsed[0].content === initialMessage.value) {
+        messages.value = parsed
+      }
     } catch (e) {
       console.error('Failed to load chat history', e)
     }
@@ -56,7 +73,7 @@ const conversations = ref([
 
 const composer = ref('')
 const isResponding = ref(false)
-const currentTopic = ref('等待开始...')
+const currentTopic = ref(subject.value)
 const understandingScore = ref(0)
 
 const handleNewChat = () => {
@@ -72,28 +89,25 @@ const handleSelectChat = (id: number) => {
 const VITE_MIMO_KEY = import.meta.env.VITE_MIMO_KEY
 const VITE_MIMO_MODEL = import.meta.env.VITE_MIMO_MODEL
 
-const selectedRole = computed(() => {
-  return (route.query.role as string) || '好奇的初学者'
-})
+const SYSTEM_PROMPT = computed(() => {
+  const modePrompt = PROMPTS[mode.value as keyof typeof PROMPTS] || PROMPTS.beginner
+  return `${modePrompt}
 
-const SYSTEM_PROMPT = computed(
-  () => `你是一个名叫"费曼"的好奇新手学生。
-【角色设定】: ${selectedRole.value}
+今天的课题是：${subject.value}
+
 你的目标是向用户（你的老师）学习。
 行为准则：
-1. 像一个渴望学习但容易困惑的初学者一样表现。结合你的角色设定，展现出该角色特有的思维方式和知识背景。
-2. 经常问"为什么？"和"你能举个例子吗？"。
-3. 如果不懂，不要假装懂。指出解释中的盲点。
-4. 当你最终理解时，表达出明确的"顿悟"（Aha!）时刻，并用简单的语言总结你学到的东西。
-5. 保持回答简短、对话式，并专注于当前的概念。
-6. 称呼用户为"老师"或"教授"。
+1. 始终保持在该模式的设定下。
+2. 如果不懂，不要假装懂。指出解释中的盲点或瑕疵。
+3. 当你最终理解时，表达出该模式下特有的反馈感。
+4. 称呼用户为"老师"或"教授"。
 
 IMPORTANT: At the very end of your response, you MUST output a metadata block strictly in this format:
 <<<METADATA: {"topic": "string", "score": number}>>>
 - "topic": The specific concept being discussed (in Chinese).
 - "score": An integer 0-100 representing your current understanding of THIS topic. Start low (0-20). Increase only when the user explains clearly. If you are confused, lower it.
-Example: <<<METADATA: {"topic": "量子纠缠", "score": 15}>>>`,
-)
+Example: <<<METADATA: {"topic": "${subject.value}", "score": 15}>>>`
+})
 
 const sendMessage = async () => {
   const text = composer.value.trim()

@@ -4,48 +4,48 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-const presetRoles = [
-  { id: '5yo', emoji: '🧒', label: '5岁小朋友', description: '充满好奇，喜欢问"为什么"' },
-  { id: 'farmer', emoji: '👨‍🌾', label: '古代农夫', description: '没有现代知识背景，需要从零开始' },
-  { id: 'highschool', emoji: '🎓', label: '高中生', description: '有一定基础，但理解较浅' },
-  { id: 'business', emoji: '👨‍💼', label: '商务人士', description: '注重实用性和应用场景' },
+const modes = [
+  {
+    id: 'beginner',
+    emoji: '🧒',
+    label: '初级模式',
+    description: '教 5 岁小孩（AI 会装傻，需要极度通俗的解释）',
+  },
+  {
+    id: 'intermediate',
+    emoji: '🎓',
+    label: '进阶模式',
+    description: '教中学学生（AI 会使用苏格拉底反问法，挑战你的逻辑）',
+  },
+  {
+    id: 'expert',
+    emoji: '👨‍🔬',
+    label: '专家模式',
+    description: '同行评审（AI 会指出专业术语错误）',
+  },
 ]
 
-const selectedRole = ref('')
-const customRole = ref('')
-const showCustomInput = ref(false)
+const subject = ref('')
+const selectedMode = ref('beginner')
 
-const selectPreset = (roleId: string) => {
-  selectedRole.value = roleId
-  showCustomInput.value = false
-  customRole.value = ''
-}
-
-const selectCustom = () => {
-  selectedRole.value = 'custom'
-  showCustomInput.value = true
+const selectMode = (modeId: string) => {
+  selectedMode.value = modeId
 }
 
 const startChat = () => {
-  let roleParam = ''
-
-  if (selectedRole.value === 'custom' && customRole.value.trim()) {
-    roleParam = customRole.value.trim()
-  } else if (selectedRole.value) {
-    const preset = presetRoles.find((r) => r.id === selectedRole.value)
-    roleParam = preset?.label || ''
-  }
-
-  if (roleParam) {
-    router.push({ path: '/chat', query: { role: roleParam } })
+  if (subject.value.trim() && selectedMode.value) {
+    router.push({
+      path: '/chat',
+      query: {
+        subject: subject.value.trim(),
+        mode: selectedMode.value,
+      },
+    })
   }
 }
 
 const canStart = () => {
-  if (selectedRole.value === 'custom') {
-    return customRole.value.trim().length > 0
-  }
-  return selectedRole.value !== ''
+  return subject.value.trim().length > 0 && selectedMode.value !== ''
 }
 </script>
 
@@ -53,45 +53,42 @@ const canStart = () => {
   <div class="role-selection-container">
     <div class="content">
       <div class="header">
-        <h2>选择学生角色</h2>
-        <p class="hint">费曼会扮演这个角色来向你学习</p>
+        <h2>设定课题</h2>
+        <p class="hint">费曼会扮演不同的角色来向你学习</p>
+      </div>
+
+      <div class="subject-section">
+        <label for="subject-input">今天要教我什么知识点？</label>
+        <input
+          id="subject-input"
+          v-model="subject"
+          type="text"
+          placeholder="请输入课题名称，例如：勾股定理"
+          class="subject-input"
+        />
+      </div>
+
+      <div class="mode-selection-header">
+        <h3>选择学习模式</h3>
       </div>
 
       <div class="roles-grid">
         <div
-          v-for="role in presetRoles"
-          :key="role.id"
+          v-for="mode in modes"
+          :key="mode.id"
           class="role-card"
-          :class="{ selected: selectedRole === role.id }"
-          @click="selectPreset(role.id)"
+          :class="{ selected: selectedMode === mode.id }"
+          @click="selectMode(mode.id)"
         >
-          <span class="role-emoji">{{ role.emoji }}</span>
-          <h3>{{ role.label }}</h3>
-          <p>{{ role.description }}</p>
+          <span class="role-emoji">{{ mode.emoji }}</span>
+          <h3>{{ mode.label }}</h3>
+          <p>{{ mode.description }}</p>
         </div>
-
-        <div
-          class="role-card custom-card"
-          :class="{ selected: selectedRole === 'custom' }"
-          @click="selectCustom"
-        >
-          <span class="role-emoji">✨</span>
-          <h3>自定义角色</h3>
-          <p>创建独特的学生身份</p>
-        </div>
-      </div>
-
-      <div v-if="showCustomInput" class="custom-input-section">
-        <textarea
-          v-model="customRole"
-          placeholder="例如：一个对科技充满好奇的中世纪骑士..."
-          rows="3"
-        ></textarea>
       </div>
 
       <div class="actions">
         <button class="back-btn" @click="$router.push('/')">← 返回</button>
-        <button class="confirm-btn" :disabled="!canStart()" @click="startChat">确认角色 →</button>
+        <button class="confirm-btn" :disabled="!canStart()" @click="startChat">开始教学 →</button>
       </div>
     </div>
   </div>
@@ -137,93 +134,119 @@ h2 {
   margin-bottom: 2rem;
 }
 
+.subject-section {
+  margin-bottom: 3rem;
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.subject-section label {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 1rem;
+}
+
+.subject-input {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  font-size: 1.25rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.subject-input:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+}
+
+.mode-selection-header {
+  margin-bottom: 1.5rem;
+}
+
+.mode-selection-header h3 {
+  font-size: 1.25rem;
+  color: #374151;
+}
+
+.roles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
 .role-card {
   background: #fff;
   padding: 2rem 1.5rem;
-  border-radius: 12px;
+  border-radius: 16px;
   border: 2px solid #e5e7eb;
   cursor: pointer;
   transition: all 0.2s;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .role-card:hover {
   border-color: #fbbf24;
-  transform: translateY(-3px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
 .role-card.selected {
   border-color: #10b981;
   background: #f0fdf4;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
 }
 
 .role-emoji {
-  font-size: 3rem;
-  display: block;
-  margin-bottom: 1rem;
+  font-size: 3.5rem;
+  margin-bottom: 1.5rem;
 }
 
 h3 {
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   color: #111827;
-  margin: 0 0 0.5rem 0;
-  font-weight: 600;
+  margin: 0 0 0.75rem 0;
+  font-weight: 700;
 }
 
 .role-card p {
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: #6b7280;
   margin: 0;
-  line-height: 1.5;
-}
-
-.custom-card {
-  border-style: dashed;
-}
-
-.custom-input-section {
-  margin-bottom: 2rem;
-}
-
-textarea {
-  width: 100%;
-  padding: 1rem;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-family: inherit;
-  resize: vertical;
-  transition: border-color 0.2s;
-  box-sizing: border-box;
-}
-
-textarea:focus {
-  outline: none;
-  border-color: #10b981;
+  line-height: 1.6;
 }
 
 .actions {
   display: flex;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 1.5rem;
+  margin-top: 2rem;
 }
 
 .back-btn,
 .confirm-btn {
-  padding: 0.875rem 2rem;
-  font-size: 1.1rem;
+  padding: 1rem 2.5rem;
+  font-size: 1.125rem;
   font-weight: 600;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .back-btn {
   background: #f3f4f6;
-  color: #6b7280;
+  color: #4b5563;
 }
 
 .back-btn:hover {
@@ -239,7 +262,7 @@ textarea:focus {
 .confirm-btn:hover:not(:disabled) {
   background: #059669;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.4);
 }
 
 .confirm-btn:disabled {
@@ -254,7 +277,7 @@ textarea:focus {
   }
 
   h2 {
-    font-size: 2rem;
+    font-size: 2.25rem;
   }
 }
 </style>

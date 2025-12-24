@@ -23,7 +23,7 @@ defineProps<{
     </div>
 
     <div class="header-right">
-      <span class="brain-icon">🧠</span>
+      <span class="brain-icon">📑</span>
     </div>
   </header>
 </template>
