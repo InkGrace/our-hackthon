@@ -2,11 +2,13 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>琢玉 GPT</title>
     <script>
-      // GitHub Pages 404 重定向到 index.html
-      // 这样 Vue Router 可以处理所有路由
+      // GitHub Pages 404 处理
+      // 当访问不存在的路径时，GitHub Pages 会返回 404.html，但 URL 保持不变
+      // 我们需要重定向到 index.html，让 Vue Router 处理路由
       ;(function () {
         const path = window.location.pathname
         const search = window.location.search
@@ -15,20 +17,27 @@
         // 获取路径段
         const segments = path.split('/').filter(Boolean)
 
-        // 如果路径是根路径，直接重定向到 index.html
-        if (segments.length === 0 || (segments.length === 1 && segments[0] === 'index.html')) {
-          window.location.replace('./index.html' + search + hash)
+        // 如果已经是 index.html，不需要重定向
+        if (segments.length > 0 && segments[segments.length - 1] === 'index.html') {
           return
         }
 
         // 提取仓库名（第一个段）
-        // 例如：/our-hackthon/chat -> repoName = 'our-hackthon'
-        const repoName = segments[0]
+        const repoName = segments[0] || ''
 
-        // 构建重定向路径：/仓库名/index.html
-        const redirectPath = '/' + repoName + '/index.html' + search + hash
+        // 构建重定向路径
+        // 例如：/our-hackthon/chat?subject=xxx -> /our-hackthon/index.html?subject=xxx
+        // 然后 Vue Router 会从 URL 中读取路径并正确路由
+        let redirectPath
+        if (repoName) {
+          // 有仓库名：/仓库名/index.html
+          redirectPath = '/' + repoName + '/index.html' + search + hash
+        } else {
+          // 无仓库名（根路径）：./index.html
+          redirectPath = './index.html' + search + hash
+        }
 
-        // 立即重定向
+        // 使用 replace 避免在历史记录中留下 404 页面
         window.location.replace(redirectPath)
       })()
     </script>
@@ -37,17 +46,23 @@
     <div id="app">
       <p>正在加载...</p>
     </div>
+    <!-- 这个脚本会在重定向前执行，如果重定向失败，显示提示 -->
     <script>
-      // 备用方案：如果 JavaScript 被禁用，显示提示
       setTimeout(function () {
-        const path = window.location.pathname
-        const segments = path.split('/').filter(Boolean)
-        const repoName = segments[0] || ''
-        const indexPath = repoName ? '/' + repoName + '/index.html' : './index.html'
-        document.body.innerHTML =
-          '<h1>页面加载中...</h1><p>如果页面没有自动跳转，请<a href="' +
-          indexPath +
-          '">点击这里</a></p>'
+        // 如果 1 秒后还在 404 页面，显示提示
+        if (window.location.pathname.includes('404.html')) {
+          const path = window.location.pathname
+          const segments = path.split('/').filter(Boolean)
+          const repoName = segments[0] || ''
+          const indexPath = repoName ? '/' + repoName + '/index.html' : './index.html'
+          document.body.innerHTML =
+            '<div style="text-align: center; padding: 2rem; font-family: sans-serif;">' +
+            '<h1>页面加载中...</h1>' +
+            '<p>如果页面没有自动跳转，请<a href="' +
+            indexPath +
+            '">点击这里</a></p>' +
+            '</div>'
+        }
       }, 1000)
     </script>
   </body>

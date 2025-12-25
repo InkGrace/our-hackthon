@@ -202,30 +202,43 @@ const sendMessage = async () => {
 
     const endpoint = getApiEndpoint('/chat/completions')
 
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${VITE_MIMO_KEY}`,
-      },
-      body: JSON.stringify({
-        model: VITE_MIMO_MODEL,
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT.value },
-          { role: 'user', content: text },
-        ],
-        max_completion_tokens: 1024,
-        temperature: 0.3,
-        top_p: 0.95,
-        stream: true,
-        stop: null,
-        frequency_penalty: 0,
-        presence_penalty: 0,
-        extra_body: {
-          thinking: { type: 'disabled' },
+    let response: Response
+    try {
+      response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${VITE_MIMO_KEY}`,
         },
-      }),
-    })
+        body: JSON.stringify({
+          model: VITE_MIMO_MODEL,
+          messages: [
+            { role: 'system', content: SYSTEM_PROMPT.value },
+            { role: 'user', content: text },
+          ],
+          max_completion_tokens: 1024,
+          temperature: 0.3,
+          top_p: 0.95,
+          stream: true,
+          stop: null,
+          frequency_penalty: 0,
+          presence_penalty: 0,
+          extra_body: {
+            thinking: { type: 'disabled' },
+          },
+        }),
+      })
+    } catch (fetchError) {
+      // 捕获网络错误（包括跨域错误）
+      const error = fetchError instanceof Error ? fetchError : new Error(String(fetchError))
+      if (!VITE_PROXY_URL && !import.meta.env.DEV) {
+        throw new Error(
+          `网络错误（可能是跨域问题）：${error.message}\n\n` +
+            `解决方案：请在 GitHub Secrets 中配置 VITE_PROXY_URL，或查看部署文档获取帮助。`,
+        )
+      }
+      throw error
+    }
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
@@ -308,13 +321,38 @@ const sendMessage = async () => {
           createdAt: Date.now(),
         })
       } else {
+        // 检查是否是跨域错误
+        const isCorsError =
+          err.message.includes('CORS') ||
+          err.message.includes('Failed to fetch') ||
+          err.message.includes('NetworkError') ||
+          err.message.includes('Access-Control')
+
+        let errorMessage = `发生错误: ${err.message}`
+
+        if (isCorsError && !VITE_PROXY_URL && !import.meta.env.DEV) {
+          errorMessage =
+            `跨域错误：无法连接到 API 服务器。\n\n` +
+            `解决方案：\n` +
+            `1. 配置代理服务（推荐）：在 GitHub Secrets 中设置 VITE_PROXY_URL\n` +
+            `2. 查看部署文档：https://github.com/InkGrace/our-hackthon/blob/main/PROXY_SETUP.md\n\n` +
+            `错误详情：${err.message}`
+        }
+
         messages.value.push({
           id: Date.now(),
           role: 'assistant',
-          content: `发生错误: ${err.message}`,
+          content: errorMessage,
           createdAt: Date.now(),
         })
       }
+    } else {
+      messages.value.push({
+        id: Date.now(),
+        role: 'assistant',
+        content: '发生未知错误，请稍后重试',
+        createdAt: Date.now(),
+      })
     }
   } finally {
     isResponding.value = false
