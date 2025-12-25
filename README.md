@@ -138,6 +138,29 @@ src/
 4. **实时反馈** - 查看 AI 的理解分数和当前讨论主题
 5. **结算报告** - 获得基于费曼技巧的深度评估报告
 
+## 🚢 部署到 GitHub Pages
+
+项目已配置 GitHub Actions 自动部署到 GitHub Pages。
+
+### 快速部署
+
+1. **配置 GitHub Secrets**（必需）：
+   - 进入仓库 **Settings** → **Secrets and variables** → **Actions**
+   - 添加 `VITE_MIMO_KEY`（你的 API 密钥）
+   - 可选：添加 `VITE_MIMO_BASE_URL` 和 `VITE_MIMO_MODEL`
+
+2. **启用 GitHub Pages**：
+   - 进入 **Settings** → **Pages**
+   - Source 选择 **GitHub Actions**
+
+3. **触发部署**：
+   - 推送到 `main` 分支会自动触发部署
+   - 或手动触发：**Actions** → **Deploy to GitHub Pages** → **Run workflow**
+
+### 详细说明
+
+查看 [DEPLOYMENT.md](./DEPLOYMENT.md) 获取完整的部署指南和密钥配置说明。
+
 ## 📄 许可证
 
 本项目为开源项目。

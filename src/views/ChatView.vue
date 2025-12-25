@@ -124,6 +124,18 @@ const handleSelectChat = (id: number) => {
 
 const VITE_MIMO_KEY = import.meta.env.VITE_MIMO_KEY
 const VITE_MIMO_MODEL = import.meta.env.VITE_MIMO_MODEL
+const VITE_MIMO_BASE_URL = import.meta.env.VITE_MIMO_BASE_URL || 'https://api.xiaomimimo.com/v1'
+
+// 获取 API 端点：开发环境使用代理，生产环境直接使用完整 URL
+const getApiEndpoint = (path: string) => {
+  if (import.meta.env.DEV) {
+    // 开发环境使用代理
+    return `/api${path}`
+  } else {
+    // 生产环境直接使用完整 URL
+    return `${VITE_MIMO_BASE_URL}${path}`
+  }
+}
 
 const SYSTEM_PROMPT = computed(() => {
   const modePrompt = PROMPTS[mode.value as keyof typeof PROMPTS] || PROMPTS.beginner
@@ -179,7 +191,7 @@ const sendMessage = async () => {
       throw new Error('No API key found. Please set VITE_MIMO_KEY in your .env file.')
     }
 
-    const endpoint = '/api/chat/completions'
+    const endpoint = getApiEndpoint('/chat/completions')
 
     const response = await fetch(endpoint, {
       method: 'POST',

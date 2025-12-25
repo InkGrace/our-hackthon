@@ -24,6 +24,18 @@ const report = ref<{
 
 const VITE_MIMO_KEY = import.meta.env.VITE_MIMO_KEY
 const VITE_MIMO_MODEL = import.meta.env.VITE_MIMO_MODEL
+const VITE_MIMO_BASE_URL = import.meta.env.VITE_MIMO_BASE_URL || 'https://api.xiaomimimo.com/v1'
+
+// 获取 API 端点：开发环境使用代理，生产环境直接使用完整 URL
+const getApiEndpoint = (path: string) => {
+  if (import.meta.env.DEV) {
+    // 开发环境使用代理
+    return `/api${path}`
+  } else {
+    // 生产环境直接使用完整 URL
+    return `${VITE_MIMO_BASE_URL}${path}`
+  }
+}
 
 const generateReport = async () => {
   const savedMessages = localStorage.getItem('chat_messages')
@@ -42,7 +54,7 @@ const generateReport = async () => {
   try {
     if (!VITE_MIMO_KEY) throw new Error('Missing API Key')
 
-    const response = await fetch('/api/chat/completions', {
+    const response = await fetch(getApiEndpoint('/chat/completions'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
