@@ -262,6 +262,7 @@ const sendMessage = async () => {
                 const topicRegex = /\[TOPIC:\s*(.*?)\]/
                 const topicMatch = assistantMessage.content.match(topicRegex)
                 if (topicMatch) {
+                  // @ts-expect-error - topicMatch is not undefined
                   const newTopic = topicMatch[1].trim()
                   if (newTopic) currentTopic.value = newTopic
                   assistantMessage.content = assistantMessage.content
@@ -273,6 +274,7 @@ const sendMessage = async () => {
                 const scoreRegex = /\[SCORE:\s*(\d+)\]/
                 const scoreMatch = assistantMessage.content.match(scoreRegex)
                 if (scoreMatch) {
+                  // @ts-expect-error - scoreMatch is not undefined
                   const newScore = parseInt(scoreMatch[1], 10)
                   if (!isNaN(newScore)) understandingScore.value = newScore
                   assistantMessage.content = assistantMessage.content
