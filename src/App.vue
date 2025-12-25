@@ -1,3 +1,8 @@
+<script setup lang="ts">
+// App 根组件
+// 存储清理逻辑在路由守卫中处理
+</script>
+
 <template>
   <RouterView />
 </template>

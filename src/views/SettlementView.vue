@@ -250,7 +250,9 @@ onMounted(() => {
 })
 
 const handleHome = () => {
-  localStorage.removeItem('chat_messages') // Optional: clear chat on exit?
+  // 清空所有存储的数据
+  localStorage.removeItem('chat_state')
+  localStorage.removeItem('chat_messages')
   router.push('/')
 }
 

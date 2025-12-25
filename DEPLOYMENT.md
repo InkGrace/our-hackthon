@@ -19,7 +19,6 @@
 1. 进入你的 GitHub 仓库页面
 2. 点击 **Settings** → **Secrets and variables** → **Actions**
 3. 点击 **New repository secret** 添加以下密钥：
-
    - **`VITE_MIMO_KEY`**: 你的 Xiaomi MiMo API 密钥
    - **`VITE_MIMO_BASE_URL`** (可选): API 基础地址，默认为 `https://api.xiaomimimo.com/v1`
    - **`VITE_MIMO_MODEL`** (可选): 模型名称，默认为 `mimo-v2-flash`
@@ -73,6 +72,7 @@ GitHub Pages 是静态网站托管服务，无法在运行时读取环境变量�
 ### 密钥安全提示
 
 ⚠️ **重要**：
+
 - 不要将 API 密钥提交到代码仓库
 - 不要将 `.env` 文件提交到 Git（已在 `.gitignore` 中排除）
 - 使用 GitHub Secrets 存储所有敏感信息
@@ -121,15 +121,40 @@ GitHub Pages 是静态网站托管服务，无法在运行时读取环境变量�
 2. 检查 API 密钥是否有效
 3. 查看浏览器控制台的错误信息
 
+### 跨域错误（CORS）
+
+如果遇到跨域错误，需要配置代理服务。查看 [PROXY_SETUP.md](./PROXY_SETUP.md) 获取详细解决方案。
+
+**快速解决**：
+
+1. 部署代理服务到 Vercel（项目已包含 `api/proxy.ts`）
+2. 在 GitHub Secrets 中添加 `VITE_PROXY_URL`，值为你的 Vercel 应用 URL + `/api`
+3. 重新部署
+
 ### 页面无法访问
 
 1. 确认 GitHub Pages 已启用
 2. 检查仓库的 Pages 设置
 3. 确认部署工作流已成功完成
 
+### 刷新页面出现 404 错误
+
+这是单页应用（SPA）在 GitHub Pages 上的常见问题。项目已包含 `public/404.html` 文件来自动处理此问题。
+
+**解决方案**：
+
+- 项目已配置 `404.html` 文件，构建时会自动复制到 `dist` 目录
+- GitHub Pages 会自动使用 `404.html` 处理所有找不到的页面
+- `404.html` 会自动重定向到 `index.html`，让 Vue Router 处理路由
+
+如果仍然遇到问题：
+
+1. 确认 `public/404.html` 文件存在
+2. 检查构建输出中是否包含 `dist/404.html`
+3. 清除浏览器缓存后重试
+
 ## 📚 相关资源
 
 - [GitHub Pages 文档](https://docs.github.com/en/pages)
 - [GitHub Actions 文档](https://docs.github.com/en/actions)
 - [GitHub Secrets 文档](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
-

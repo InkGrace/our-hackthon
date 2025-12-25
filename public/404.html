@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>琢玉 GPT</title>
+    <script>
+      // GitHub Pages 404 重定向到 index.html
+      // 这样 Vue Router 可以处理所有路由
+      ;(function () {
+        const path = window.location.pathname
+        const search = window.location.search
+        const hash = window.location.hash
+
+        // 获取路径段
+        const segments = path.split('/').filter(Boolean)
+
+        // 如果路径是根路径，直接重定向到 index.html
+        if (segments.length === 0 || (segments.length === 1 && segments[0] === 'index.html')) {
+          window.location.replace('./index.html' + search + hash)
+          return
+        }
+
+        // 提取仓库名（第一个段）
+        // 例如：/our-hackthon/chat -> repoName = 'our-hackthon'
+        const repoName = segments[0]
+
+        // 构建重定向路径：/仓库名/index.html
+        const redirectPath = '/' + repoName + '/index.html' + search + hash
+
+        // 立即重定向
+        window.location.replace(redirectPath)
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="app">
+      <p>正在加载...</p>
+    </div>
+    <script>
+      // 备用方案：如果 JavaScript 被禁用，显示提示
+      setTimeout(function () {
+        const path = window.location.pathname
+        const segments = path.split('/').filter(Boolean)
+        const repoName = segments[0] || ''
+        const indexPath = repoName ? '/' + repoName + '/index.html' : './index.html'
+        document.body.innerHTML =
+          '<h1>页面加载中...</h1><p>如果页面没有自动跳转，请<a href="' +
+          indexPath +
+          '">点击这里</a></p>'
+      }, 1000)
+    </script>
+  </body>
+</html>
