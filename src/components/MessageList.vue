@@ -125,7 +125,7 @@ defineExpose({ scrollToBottom })
           class="bubble-text muted"
           style="font-family: sans-serif; font-size: 0.9rem; color: #6b7280"
         >
-          🤔 嗯... 费曼正在挠头思考...
+          🤔 嗯... 正在挠头思考...
         </p>
       </div>
     </div>
