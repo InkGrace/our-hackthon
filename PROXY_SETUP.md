@@ -14,11 +14,18 @@ Vercel 提供免费的 Serverless Functions，可以轻松创建代理服务。
 
 1. 在 Vercel 创建新项目：https://vercel.com/new
 2. 导入你的 GitHub 仓库
-3. 在项目设置中添加环境变量：
+3. **配置 Node.js 版本**（可选）：
+   - 在 Vercel 项目设置中，可以设置 Node.js 版本（推荐使用 20.x 或 22.x）
+   - 项目已移除 `package.json` 中的 `engines` 配置，让 Vercel 使用项目设置
+4. 在项目设置中添加环境变量：
    - `VITE_MIMO_KEY`: 你的 API 密钥
    - `VITE_MIMO_BASE_URL`: `https://api.xiaomimimo.com/v1`
    - `VITE_MIMO_MODEL`: `mimo-v2-flash`
-4. 部署后，Vercel 会提供一个 URL，例如：`https://your-project.vercel.app`
+5. 部署后，Vercel 会提供一个 URL，例如：`https://your-project.vercel.app`
+
+**注意**：
+- Vercel 会自动检测 `api/` 目录下的 TypeScript 文件并部署为 Serverless Functions
+- 不需要额外的配置，`vercel.json` 已经配置了路径重写和 CORS 头
 
 #### 步骤 2：配置 GitHub Pages 使用代理
 
@@ -201,10 +208,33 @@ has been blocked by CORS policy: Response to preflight request doesn't pass acce
    - 直接访问：`https://your-app.vercel.app/api/chat/completions`
    - 应该返回错误（因为缺少请求体），但不应该有 CORS 错误
 
+### 问题：Vercel 构建错误
+
+**错误示例**：
+```
+Error: Function Runtimes must have a valid version
+Warning: Due to "engines" in your package.json, the Node.js Version defined in your Project Settings will not apply
+```
+
+**解决方案**：
+
+1. **移除 `package.json` 中的 `engines` 配置**（已修复）：
+   - 项目已移除 `engines` 配置，让 Vercel 使用项目设置
+   - 如果仍有问题，检查 `package.json` 中是否还有 `engines` 字段
+
+2. **检查 `vercel.json` 配置**（已修复）：
+   - 项目已移除 `functions` 配置，Vercel 会自动检测 TypeScript 文件
+   - 如果仍有问题，确保 `vercel.json` 中没有无效的 `functions` 配置
+
+3. **在 Vercel 项目设置中配置 Node.js 版本**：
+   - 进入 Vercel 项目设置 → General → Node.js Version
+   - 选择支持的版本（推荐 20.x 或 22.x）
+
 ### 问题：代理服务返回 500 错误
 
 1. 检查代理服务的环境变量是否正确配置
 2. 查看代理服务的日志（Vercel/Cloudflare Dashboard）
+3. 检查 `api/proxy.ts` 文件是否正确部署
 
 ### 问题：API 密钥泄露
 

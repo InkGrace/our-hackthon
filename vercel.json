@@ -1,9 +1,4 @@
 {
-  "functions": {
-    "api/proxy.ts": {
-      "runtime": "nodejs20.x"
-    }
-  },
   "rewrites": [
     {
       "source": "/api/chat/completions",
@@ -30,4 +25,3 @@
     }
   ]
 }
-
