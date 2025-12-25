@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { nextTick, onMounted, ref, watch, computed } from 'vue'
 import MarkdownIt from 'markdown-it'
+import mathjax3 from 'markdown-it-mathjax3'
 
 type Role = 'user' | 'assistant'
 
@@ -20,10 +21,10 @@ const props = defineProps<{
 const messagePane = ref<HTMLElement | null>(null)
 
 const md = new MarkdownIt({
-  html: false,
+  html: true,
   linkify: true,
   typographer: true,
-})
+}).use(mathjax3)
 
 const renderMarkdown = (text: string) => {
   return md.render(text)
@@ -71,7 +72,8 @@ watch(
 
 watch(
   () => props.messages[props.messages.length - 1]?.content,
-  () => {
+  async () => {
+    await nextTick()
     scrollToBottom()
   },
 )

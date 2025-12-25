@@ -1,30 +1,72 @@
 <script setup lang="ts">
-defineProps<{
-  modelValue: string
-  disabled?: boolean
-}>()
+import { ref, watch, nextTick, onMounted } from 'vue'
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
   (e: 'send'): void
 }>()
 
+const props = defineProps<{
+  modelValue: string
+  disabled?: boolean
+}>()
+
+const textareaRef = ref<HTMLTextAreaElement | null>(null)
+
+const adjustHeight = () => {
+  if (textareaRef.value) {
+    // 先重置高度为 auto，以便准确计算 scrollHeight
+    textareaRef.value.style.height = 'auto'
+    // 强制重排以获取准确的 scrollHeight
+    const scrollHeight = textareaRef.value.scrollHeight
+    // 设置最小高度和最大高度
+    const minHeight = 60
+    const maxHeight = 300
+    const newHeight = Math.min(Math.max(scrollHeight, minHeight), maxHeight)
+    textareaRef.value.style.height = `${newHeight}px`
+    // 如果内容超过最大高度，显示滚动条
+    textareaRef.value.style.overflowY = scrollHeight > maxHeight ? 'auto' : 'hidden'
+  }
+}
+
+const handleInput = (e: Event) => {
+  const target = e.target as HTMLTextAreaElement
+  emit('update:modelValue', target.value)
+  adjustHeight()
+}
+
 const handleEnter = (e: KeyboardEvent) => {
   if (!e.shiftKey) {
     emit('send')
   }
 }
+
+// 监听 modelValue 变化，确保外部更新时也能调整高度
+watch(
+  () => props.modelValue,
+  () => {
+    nextTick(() => {
+      adjustHeight()
+    })
+  },
+)
+
+onMounted(() => {
+  nextTick(() => {
+    adjustHeight()
+  })
+})
 </script>
 
 <template>
   <footer class="composer">
     <div class="input-wrapper">
       <textarea
+        ref="textareaRef"
         :value="modelValue"
-        rows="1"
         placeholder="清晰地解释这个概念..."
         @keydown.enter.prevent="handleEnter"
-        @input="$emit('update:modelValue', ($event.target as HTMLTextAreaElement).value)"
+        @input="handleInput"
       ></textarea>
       <button class="send" @click="$emit('send')" :disabled="!modelValue || disabled">
         教教 AI
@@ -91,11 +133,14 @@ textarea {
   line-height: 1.6;
   padding: 0;
   min-height: 60px;
+  max-height: 300px;
+  overflow-y: auto;
   /* Lined paper helper */
   background-image: linear-gradient(#f3f4f6 1px, transparent 1px);
   background-size: 100% 2rem;
   background-attachment: local;
   line-height: 2rem;
+  transition: height 0.2s ease;
 }
 
 .send {

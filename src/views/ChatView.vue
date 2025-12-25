@@ -52,6 +52,7 @@ const understandingScore = ref(0)
 const STORAGE_KEY = 'chat_state'
 
 onMounted(() => {
+  console.log('shenzhen', route.query)
   const saved = localStorage.getItem(STORAGE_KEY)
   if (saved) {
     try {
