@@ -161,6 +161,16 @@ src/
 
 查看 [DEPLOYMENT.md](./DEPLOYMENT.md) 获取完整的部署指南和密钥配置说明。
 
+### ⚠️ 跨域问题
+
+GitHub Pages 是静态托管，直接调用 API 可能遇到跨域错误。解决方案：
+
+1. **推荐**：部署代理服务到 Vercel（项目已包含 `api/proxy.ts`）
+2. 在 GitHub Secrets 中添加 `VITE_PROXY_URL`（你的 Vercel 应用 URL + `/api`）
+3. 重新部署
+
+详细步骤请查看 [PROXY_SETUP.md](./PROXY_SETUP.md)
+
 ## 📄 许可证
 
 本项目为开源项目。

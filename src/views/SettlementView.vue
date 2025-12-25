@@ -25,15 +25,23 @@ const report = ref<{
 const VITE_MIMO_KEY = import.meta.env.VITE_MIMO_KEY
 const VITE_MIMO_MODEL = import.meta.env.VITE_MIMO_MODEL
 const VITE_MIMO_BASE_URL = import.meta.env.VITE_MIMO_BASE_URL || 'https://api.xiaomimimo.com/v1'
+// 生产环境代理 URL（用于解决跨域问题）
+const VITE_PROXY_URL = import.meta.env.VITE_PROXY_URL
 
-// 获取 API 端点：开发环境使用代理，生产环境直接使用完整 URL
+// 获取 API 端点：开发环境使用代理，生产环境根据配置选择
 const getApiEndpoint = (path: string) => {
   if (import.meta.env.DEV) {
-    // 开发环境使用代理
+    // 开发环境使用 Vite 代理
     return `/api${path}`
   } else {
-    // 生产环境直接使用完整 URL
-    return `${VITE_MIMO_BASE_URL}${path}`
+    // 生产环境：如果配置了代理 URL，使用代理；否则直接调用 API
+    if (VITE_PROXY_URL) {
+      // 使用外部代理服务（解决跨域问题）
+      return `${VITE_PROXY_URL}${path}`
+    } else {
+      // 直接调用 API（可能遇到跨域问题，需要 API 服务器支持 CORS）
+      return `${VITE_MIMO_BASE_URL}${path}`
+    }
   }
 }
 
