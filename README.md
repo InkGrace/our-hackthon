@@ -1,48 +1,147 @@
-# hackthon
+# 琢玉 GPT
 
-This template should help get you started developing with Vue 3 in Vite.
+> 费曼技巧驱动的生成式反向教学智能体
 
-## Recommended IDE Setup
+琢玉 GPT 是一个基于 Vue 3 的智能教学应用，通过角色互换的方式帮助用户深度掌握知识。在这个应用中，**你是老师，AI 是学生**，通过向 AI 解释概念来检验和提升自己的理解。
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## ✨ 核心特性
 
-## Recommended Browser Setup
+### 🔄 角色互换
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd) 
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+打破传统教学模式，你是老师，AI 是学生。通过输出来倒逼输入，用费曼技巧检验知识掌握程度。
 
-## Type Support for `.vue` Imports in TS
+### 🎯 三种教学模式
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+- **初学者模式**：AI 扮演 5 岁的好奇宝宝，要求你用最简单、最具体的语言解释
+- **中级模式**：AI 扮演具有批判性思维的助教，通过苏格拉底式提问挖掘你的理解深度
+- **专家模式**：AI 扮演同行评审员，以专业标准评估你的学术表述
 
-## Customize configuration
+### 📊 掌握度追踪
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+实时可视化的"理解仪表盘"，追踪当前讨论主题和 AI 的理解分数（0-100），让你的教学效果一目了然。
 
-## Project Setup
+### 💬 苏格拉底提问
+
+AI 不会轻易"听懂"，它会像好奇的新手一样不断追问"为什么"，帮助你发现知识盲区。
+
+## 🚀 快速开始
+
+### 环境要求
+
+- Node.js: `^20.19.0 || >=22.12.0`
+- pnpm (推荐) 或 npm
+
+### 安装依赖
 
 ```sh
 pnpm install
 ```
 
-### Compile and Hot-Reload for Development
+### 配置环境变量
+
+在项目根目录创建 `.env` 文件：
+
+```env
+# Xiaomi MiMo API 密钥
+VITE_MIMO_KEY="your_xiaomi_mimo_api_key"
+
+# API 基础地址
+VITE_MIMO_BASE_URL="https://api.xiaomimimo.com/v1"
+
+# 模型名称
+VITE_MIMO_MODEL="mimo-v2-flash"
+```
+
+### 启动开发服务器
 
 ```sh
 pnpm dev
 ```
 
-### Type-Check, Compile and Minify for Production
+应用将在 `http://localhost:5173` 启动（默认会监听所有网络接口）。
+
+### 构建生产版本
 
 ```sh
 pnpm build
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+### 代码检查
 
 ```sh
 pnpm lint
 ```
+
+## 📁 项目结构
+
+```
+src/
+├── components/          # 组件
+│   ├── ChatHeader.vue   # 聊天头部（显示主题和分数）
+│   ├── ChatInput.vue    # 输入框
+│   ├── ChatSidebar.vue  # 侧边栏（对话历史）
+│   └── MessageList.vue  # 消息列表
+├── views/               # 页面视图
+│   ├── WelcomeView.vue  # 欢迎页
+│   ├── RoleSelectionView.vue  # 角色选择页
+│   ├── ChatView.vue     # 聊天主界面
+│   └── SettlementView.vue     # 结算/总结页
+├── constants/           # 常量
+│   └── prompt.ts        # AI 提示词配置
+├── router/              # 路由配置
+├── stores/              # Pinia 状态管理
+└── main.ts              # 应用入口
+```
+
+## 🛠️ 技术栈
+
+- **Vue 3** - 渐进式 JavaScript 框架
+- **TypeScript** - 类型安全
+- **Vite** - 下一代前端构建工具
+- **Vue Router** - 官方路由管理器
+- **Pinia** - 状态管理
+- **LangChain** - LLM 应用开发框架
+- **OpenAI API** (via Xiaomi MiMo) - 大语言模型接口
+- **Markdown-it** - Markdown 解析器
+
+## 🔧 开发配置
+
+### IDE 推荐
+
+[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (禁用 Vetur)
+
+### 浏览器扩展
+
+- Chromium 浏览器 (Chrome, Edge, Brave 等):
+  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
+- Firefox:
+  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
+
+### TypeScript 支持
+
+项目使用 `vue-tsc` 进行类型检查。在编辑器中需要安装 [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) 来获得 `.vue` 文件的类型支持。
+
+## 🌐 API 代理配置
+
+项目使用 Vite 开发服务器代理来解决跨域问题：
+
+- 前端请求：`/api/chat/completions`
+- 实际转发：`${VITE_MIMO_BASE_URL}/chat/completions`
+
+修改 `.env` 或 `vite.config.ts` 后需要重启开发服务器。
+
+## 📝 使用流程
+
+1. **欢迎页** - 了解项目特性
+2. **选择角色** - 选择教学难度（初学者/中级/专家）
+3. **开始教学** - 向 AI 学生解释你选择的知识点
+4. **实时反馈** - 查看 AI 的理解分数和当前讨论主题
+5. **结算报告** - 获得基于费曼技巧的深度评估报告
+
+## 📄 许可证
+
+本项目为开源项目。
+
+## 🤝 贡献
+
+欢迎提交 Issue 和 Pull Request！
