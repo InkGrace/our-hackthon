@@ -28,9 +28,23 @@ Vercel 提供免费的 Serverless Functions，可以轻松创建代理服务。
 VITE_PROXY_URL = https://your-project.vercel.app/api
 ```
 
+⚠️ **重要**：`VITE_PROXY_URL` 必须包含 `/api` 路径！
+
+- ✅ 正确：`https://your-project.vercel.app/api`
+- ❌ 错误：`https://your-project.vercel.app`（缺少 `/api`）
+
+这是因为 `vercel.json` 配置了路径重写，`/api/chat/completions` 会被重写到 `/api/proxy`。
+
 #### 步骤 3：重新部署
 
 推送代码或手动触发 GitHub Actions 部署。
+
+#### 步骤 4：验证配置
+
+部署后，检查浏览器控制台：
+- 如果看到 CORS 错误，检查 `VITE_PROXY_URL` 是否正确（必须包含 `/api`）
+- 如果看到 404 错误，检查 Vercel 部署是否成功
+- 如果看到 500 错误，检查 Vercel 环境变量是否正确配置
 
 ### 方案 2：使用 Cloudflare Workers（推荐）
 
@@ -124,9 +138,14 @@ VITE_PROXY_URL = https://your-worker.your-subdomain.workers.dev
 1. **部署代理服务**：
    - 项目已包含 `api/proxy.ts` 和 `vercel.json`
    - 在 Vercel 导入仓库并部署
-   - 配置环境变量
+   - 在 Vercel 项目设置中添加环境变量：
+     - `VITE_MIMO_KEY`: 你的 API 密钥
+     - `VITE_MIMO_BASE_URL`: `https://api.xiaomimimo.com/v1`
+     - `VITE_MIMO_MODEL`: `mimo-v2-flash`
 
 2. **配置 GitHub Secrets**：
+
+   ⚠️ **重要**：`VITE_PROXY_URL` 必须包含 `/api` 路径！
 
    ```
    VITE_PROXY_URL = https://your-vercel-app.vercel.app/api
@@ -135,7 +154,15 @@ VITE_PROXY_URL = https://your-worker.your-subdomain.workers.dev
    VITE_MIMO_MODEL = mimo-v2-flash
    ```
 
+   **常见错误**：
+   - ❌ `VITE_PROXY_URL = https://your-vercel-app.vercel.app`（缺少 `/api`）
+   - ✅ `VITE_PROXY_URL = https://your-vercel-app.vercel.app/api`（正确）
+
 3. **重新部署 GitHub Pages**
+
+4. **验证**：
+   - 检查浏览器控制台，不应该有 CORS 错误
+   - 如果仍有错误，检查 Vercel 部署日志
 
 ## 验证
 
@@ -148,9 +175,31 @@ VITE_PROXY_URL = https://your-worker.your-subdomain.workers.dev
 
 ### 问题：仍然出现跨域错误
 
-1. 检查 `VITE_PROXY_URL` 是否正确设置
-2. 检查代理服务是否正常运行
-3. 检查代理服务的 CORS 头是否正确设置
+**错误示例**：
+```
+Access to fetch at 'https://your-app.vercel.app/chat/completions' from origin 'https://inkgrace.github.io' 
+has been blocked by CORS policy: Response to preflight request doesn't pass access control check
+```
+
+**解决方案**：
+
+1. **检查 `VITE_PROXY_URL` 配置**：
+   - ❌ 错误：`VITE_PROXY_URL = https://your-app.vercel.app`
+   - ✅ 正确：`VITE_PROXY_URL = https://your-app.vercel.app/api`
+   - 必须包含 `/api` 路径！
+
+2. **检查 Vercel 部署**：
+   - 确认 `api/proxy.ts` 文件已部署
+   - 确认 `vercel.json` 配置正确
+   - 检查 Vercel 部署日志是否有错误
+
+3. **检查 CORS 头设置**：
+   - 确认代理代码中设置了正确的 CORS 头
+   - 确认 `vercel.json` 中的 headers 配置正确
+
+4. **测试代理服务**：
+   - 直接访问：`https://your-app.vercel.app/api/chat/completions`
+   - 应该返回错误（因为缺少请求体），但不应该有 CORS 错误
 
 ### 问题：代理服务返回 500 错误
 

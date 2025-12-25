@@ -1,21 +1,41 @@
 // Vercel Serverless Function 代理
 // 这个文件用于 Vercel 部署，解决跨域问题
 // 部署到 Vercel 后，访问路径为：https://your-app.vercel.app/api/proxy
+// 通过 vercel.json 配置，/api/chat/completions 会被重写到 /api/proxy
 
+// Vercel Serverless Function 类型定义
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default async function handler(req: any, res: any) {
+type VercelRequest = any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type VercelResponse = any
+
+// CORS 头设置
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+}
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   // 处理 OPTIONS 预检请求
   if (req.method === 'OPTIONS') {
-    res.setHeader('Access-Control-Allow-Origin', '*')
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    res.setHeader('Access-Control-Allow-Origin', corsHeaders['Access-Control-Allow-Origin'])
+    res.setHeader('Access-Control-Allow-Methods', corsHeaders['Access-Control-Allow-Methods'])
+    res.setHeader('Access-Control-Allow-Headers', corsHeaders['Access-Control-Allow-Headers'])
+    res.setHeader('Access-Control-Max-Age', '86400') // 24 小时
     return res.status(200).end()
   }
 
   // 只允许 POST 请求
   if (req.method !== 'POST') {
+    res.setHeader('Access-Control-Allow-Origin', corsHeaders['Access-Control-Allow-Origin'])
     return res.status(405).json({ error: 'Method not allowed' })
   }
+
+  // 设置 CORS 头（在所有响应中）
+  res.setHeader('Access-Control-Allow-Origin', corsHeaders['Access-Control-Allow-Origin'])
+  res.setHeader('Access-Control-Allow-Methods', corsHeaders['Access-Control-Allow-Methods'])
+  res.setHeader('Access-Control-Allow-Headers', corsHeaders['Access-Control-Allow-Headers'])
 
   // 获取 API 密钥和配置
   const apiKey = process.env.VITE_MIMO_KEY
@@ -48,11 +68,6 @@ export default async function handler(req: any, res: any) {
       return res.status(response.status).json(errorData)
     }
 
-    // 设置 CORS 头
-    res.setHeader('Access-Control-Allow-Origin', '*')
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-
     // 如果是流式响应，需要特殊处理
     const contentType = response.headers.get('content-type') || ''
     if (contentType.includes('text/event-stream') || requestBody.stream) {
@@ -68,30 +83,20 @@ export default async function handler(req: any, res: any) {
       const decoder = new TextDecoder()
 
       // 流式传输数据
-      const stream = new ReadableStream({
-        async start(controller) {
-          try {
-            while (true) {
-              const { done, value } = await reader.read()
-              if (done) {
-                controller.close()
-                break
-              }
-              controller.enqueue(value)
-            }
-          } catch (error) {
-            controller.error(error)
+      try {
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) {
+            res.end()
+            break
           }
-        },
-      })
-
-      // 将流转换为响应
-      for await (const chunk of stream) {
-        const text = decoder.decode(chunk, { stream: true })
-        res.write(text)
+          const chunk = decoder.decode(value, { stream: true })
+          res.write(chunk)
+        }
+      } catch (streamError) {
+        console.error('Stream error:', streamError)
+        res.end()
       }
-
-      res.end()
     } else {
       const data = await response.json()
       return res.status(200).json(data)
