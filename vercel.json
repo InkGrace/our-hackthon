@@ -5,6 +5,11 @@
       "destination": "/api/proxy"
     }
   ],
+  "functions": {
+    "api/proxy.ts": {
+      "maxDuration": 60
+    }
+  },
   "headers": [
     {
       "source": "/api/(.*)",
